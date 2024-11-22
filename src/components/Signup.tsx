@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import SignUpPicture from '../assets/SignUp.png';
-import { TextField, Button, Typography, Box, IconButton, InputAdornment } from '@mui/material';
+import { TextField, Button, Typography, Box, IconButton, InputAdornment, CircularProgress } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import './Signup.css';
 
@@ -15,7 +15,10 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
+  console.log(apiUrl)
 
   const handleSignup = async () => {
     if (password !== confirmPassword) {
@@ -23,11 +26,15 @@ const Signup: React.FC = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
-      const response = await axios.post('/signup', { firstName, lastName, email, password });
+      const response = await axios.post(`${apiUrl}/signup`, { firstName, lastName, email, password });
       navigate('/verify-otp', { state: { email } });
     } catch (error) {
       setError('Error signing up');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -169,8 +176,9 @@ const Signup: React.FC = () => {
                 textTransform: 'none' // This line ensures the text is not transformed to uppercase
               }}
               onClick={handleSignup}
+              disabled={loading}
             >
-              Sign Up
+              {loading ? <CircularProgress size={24} /> : 'Sign Up'}
             </Button>
           </Box>
         </div>
