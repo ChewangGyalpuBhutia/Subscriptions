@@ -1,0 +1,12 @@
+.signup-container {
+    width: 100%;
+    max-width: 500px;
+    padding: 1.75rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.signup-image-container {
+    height: 550px;
+    width: 600px;
+}
