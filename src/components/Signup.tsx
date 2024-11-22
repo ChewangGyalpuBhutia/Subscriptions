@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import SignUpPicture from '../assets/SignUp.png';
-import { TextField, Button, Container, Typography, Box, Grid, Paper } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Paper } from '@mui/material';
 
 const Signup: React.FC = () => {
   const [firstName, setFirstName] = useState('');
@@ -14,8 +14,13 @@ const Signup: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSignup = async () => {
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
-      const response = await axios.post('/signup', { email, password });
+      const response = await axios.post('/signup', { firstName, lastName, email, password });
       navigate('/verify-otp', { state: { email } });
     } catch (error) {
       setError('Error signing up');
@@ -23,12 +28,14 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen">
-      <div className="w-full md:w-1/2 p-4">
-        <img src={SignUpPicture} alt="Sign Up" className="w-full h-auto" />
+    <div className="flex items-center justify-center min-h-screen">
+      <div className='flex items-center justify-end flex-1'>
+        <div className="flex items-center justify-end" style={{ height: 550, width: 600 }}>
+          <img src={SignUpPicture} alt="Sign Up" className="h-full" />
+        </div>
       </div>
-      <div className="w-full md:w-1/2 p-4">
-        <Paper elevation={3} sx={{ padding: 4 }}>
+      <div className="flex items-center justify-end flex-1 bg-red-">
+        <Paper elevation={3} sx={{ marginLeft: 20, marginRight: 20, padding: 4 }}>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-1 '>
               <h1 className='font-extrabold text-3xl' style={{ color: '#3a2449', }}>Let us know </h1>
@@ -40,19 +47,33 @@ const Signup: React.FC = () => {
             </div>
           </div>
           <Box component="form" sx={{ mt: 1 }}>
-            <TextField variant="standard"
+            <TextField
+              variant="standard"
               margin="normal"
               required
               fullWidth
-              id="First Name"
+              id="firstName"
               label="First Name"
-              name="First Name"
-              autoComplete="First Name"
+              name="firstName"
+              autoComplete="given-name"
               autoFocus
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
-            <TextField variant="standard"
+            <TextField
+              variant="standard"
+              margin="normal"
+              required
+              fullWidth
+              id="lastName"
+              label="Last Name"
+              name="lastName"
+              autoComplete="family-name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+            />
+            <TextField
+              variant="standard"
               margin="normal"
               required
               fullWidth
@@ -60,7 +81,6 @@ const Signup: React.FC = () => {
               label="Email Address"
               name="email"
               autoComplete="email"
-              autoFocus
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -73,9 +93,22 @@ const Signup: React.FC = () => {
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+            />
+            <TextField
+              variant="standard"
+              margin="normal"
+              required
+              fullWidth
+              name="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              id="confirmPassword"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
             />
             {error && (
               <Typography color="error" variant="body2">
@@ -86,8 +119,7 @@ const Signup: React.FC = () => {
               type="button"
               fullWidth
               variant="contained"
-              color="primary"
-              sx={{ mt: 3, mb: 2 }}
+              sx={{ mt: 3, mb: 2, backgroundColor: '#3a2449', borderRadius: 3 }}
               onClick={handleSignup}
             >
               Sign Up
