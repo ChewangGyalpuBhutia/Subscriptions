@@ -4,43 +4,49 @@ import { useNavigate } from 'react-router-dom';
 import SignUpPicture from '../assets/SignUp.png';
 import { TextField, Button, Typography, Box, IconButton, InputAdornment, CircularProgress } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import './Signup.css';
 
 const Signup: React.FC = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
-  console.log(apiUrl)
 
-  const handleSignup = async () => {
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+  const validationSchema = yup.object({
+    firstName: yup.string().required('First Name is required'),
+    lastName: yup.string().required('Last Name is required'),
+    email: yup.string().email('Enter a valid email').required('Email is required'),
+    password: yup.string().min(6, 'Password should be of minimum 6 characters length').required('Password is required'),
+    confirmPassword: yup.string()
+      .oneOf([yup.ref('password'), undefined], 'Passwords must match')
+      .required('Confirm Password is required'),
+  });
 
-    setLoading(true);
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values: { firstName: string; lastName: string; email: string; password: string; confirmPassword: string; general?: string }) => {
 
-    try {
-      const response = await axios.post(`${apiUrl}/signup`, { firstName, lastName, email, password });
-      navigate('/verify-otp', { state: { email } });
-    } catch (error) {
-      setError('Error signing up');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignIn = () => {
-    navigate('/login');
-  };
+      setLoading(true);
+      try {
+        const response = await axios.post(`${apiUrl}/signup`, values);
+        navigate('/verify-otp', { state: { email: values.email } });
+      } catch (error) {
+        formik.setFieldError('general', 'Error signing up');
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -48,6 +54,10 @@ const Signup: React.FC = () => {
 
   const handleClickShowConfirmPassword = () => {
     setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const handleSignIn = () => {
+    navigate('/login');
   };
 
   return (
@@ -69,7 +79,7 @@ const Signup: React.FC = () => {
               <h1 className='font-bold text-lg' style={{ color: '#d62637' }}>in</h1>
             </div>
           </div>
-          <Box component="form" sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
             <TextField
               variant="standard"
               margin="normal"
@@ -80,8 +90,11 @@ const Signup: React.FC = () => {
               name="firstName"
               autoComplete="given-name"
               autoFocus
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              value={formik.values.firstName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+              helperText={formik.touched.firstName && formik.errors.firstName}
             />
             <TextField
               variant="standard"
@@ -92,8 +105,11 @@ const Signup: React.FC = () => {
               label="Last Name"
               name="lastName"
               autoComplete="family-name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              value={formik.values.lastName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+              helperText={formik.touched.lastName && formik.errors.lastName}
             />
             <TextField
               variant="standard"
@@ -104,8 +120,11 @@ const Signup: React.FC = () => {
               label="Email Address"
               name="email"
               autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
             />
             <TextField
               variant="standard"
@@ -117,8 +136,11 @@ const Signup: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               id="password"
               autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -143,8 +165,11 @@ const Signup: React.FC = () => {
               type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
               autoComplete="new-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={formik.values.confirmPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+              helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -159,13 +184,13 @@ const Signup: React.FC = () => {
                 ),
               }}
             />
-            {error && (
+            {formik.errors.general && (
               <Typography color="error" variant="body2">
-                {error}
+                {formik.errors.general}
               </Typography>
             )}
             <Button
-              type="button"
+              type="submit"
               fullWidth
               variant="contained"
               sx={{
@@ -175,7 +200,6 @@ const Signup: React.FC = () => {
                 borderRadius: 3,
                 textTransform: 'none' // This line ensures the text is not transformed to uppercase
               }}
-              onClick={handleSignup}
               disabled={loading}
             >
               {loading ? <CircularProgress size={24} /> : 'Sign Up'}

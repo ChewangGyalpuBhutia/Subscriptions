@@ -2,26 +2,45 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import SignUpPicture from '../assets/SignIn.png';
-import { TextField, Button, Typography, Box, IconButton, InputAdornment } from '@mui/material';
+import { TextField, Button, Typography, Box, IconButton, InputAdornment, CircularProgress, Modal } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import './Login.css';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('/login', { email, password });
-      // Handle successful login, e.g., store token, redirect to dashboard
-      navigate('/welcome'); // Example redirect after successful login
-    } catch (error) {
-      setError('Error logging in');
-    }
-  };
+  const validationSchema = yup.object({
+    email: yup.string().email('Enter a valid email').required('Email is required'),
+    password: yup.string().min(6, 'Password should be of minimum 6 characters length').required('Password is required'),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      setLoading(true);
+      try {
+        const response = await axios.post(`${apiUrl}/login`, values);
+        // Handle successful login, e.g., store token, redirect to dashboard
+        navigate('/welcome'); // Example redirect after successful login
+      } catch (error:any) {
+        setModalMessage(error.response?.data?.error || 'Error logging in');
+        setModalOpen(true);
+      } finally {
+        setLoading(false);
+      }
+    },
+  });
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -29,6 +48,10 @@ const Login: React.FC = () => {
 
   const handleSignUp = () => {
     navigate('/signup');
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
   };
 
   return (
@@ -42,11 +65,11 @@ const Login: React.FC = () => {
         <div className="signup-container border">
           <div className='flex items-center justify-between mb-4'>
             <div className='flex items-center gap-1'>
-            <h1 className='font-extrabold text-3xl' style={{ color: '#3a2449' }}>Let us know </h1>
-            <h1 className='font-extrabold text-3xl' style={{ color: '#d62637' }}>!</h1>
+              <h1 className='font-extrabold text-3xl' style={{ color: '#3a2449' }}>Let us know </h1>
+              <h1 className='font-extrabold text-3xl' style={{ color: '#d62637' }}>!</h1>
             </div>
           </div>
-          <Box component="form" sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
             <TextField
               variant="standard"
               margin="normal"
@@ -57,8 +80,11 @@ const Login: React.FC = () => {
               name="email"
               autoComplete="email"
               autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
             />
             <TextField
               variant="standard"
@@ -70,8 +96,11 @@ const Login: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               id="password"
               autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -86,13 +115,8 @@ const Login: React.FC = () => {
                 ),
               }}
             />
-            {error && (
-              <Typography color="error" variant="body2">
-                {error}
-              </Typography>
-            )}
             <Button
-              type="button"
+              type="submit"
               fullWidth
               variant="contained"
               sx={{
@@ -102,9 +126,9 @@ const Login: React.FC = () => {
                 borderRadius: 3,
                 textTransform: 'none' // This line ensures the text is not transformed to uppercase
               }}
-              onClick={handleLogin}
+              disabled={loading}
             >
-              Sign In
+              {loading ? <CircularProgress size={24} /> : 'Sign In'}
             </Button>
             <Button
               type="button"
@@ -124,6 +148,34 @@ const Login: React.FC = () => {
           </Box>
         </div>
       </div>
+      <Modal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            // border: '2px solid #000',
+            boxShadow: 24,
+            borderRadius: 4,
+            p: 4,
+          }}
+        >
+          <Typography id="modal-description" sx={{ mt: 2 }}>
+            {modalMessage}
+          </Typography>
+          <Button onClick={handleCloseModal} sx={{ mt: 2, color:'#3a2449' }}>
+            Close
+          </Button>
+        </Box>
+      </Modal>
     </div>
   );
 };
