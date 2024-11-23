@@ -18,7 +18,7 @@ A modern authentication system built with React, featuring email OTP verificatio
 - Tailwind CSS for styling
 - Axios for API requests
 - React Router for navigation
-- React Hook Form for form validation
+- Formik and yup  for form validation
 
 ### Backend
 - Node.js with Express
