@@ -1,46 +1,119 @@
-# Getting Started with Create React App
+# Full-Stack Authentication System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern authentication system built with React, featuring email OTP verification, secure login, and JWT authentication.
 
-## Available Scripts
+## 🚀 Features
 
-In the project directory, you can run:
+- Email-based signup with OTP verification
+- Secure login with JWT authentication
+- Password hashing using bcrypt
+- Responsive design using Tailwind CSS
+- Protected routes for authenticated users
+- Mobile-friendly interface
 
-### `npm start`
+## 🛠️ Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Frontend
+- React.js with TypeScript
+- Tailwind CSS for styling
+- Axios for API requests
+- React Router for navigation
+- React Hook Form for form validation
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### Backend
+- Node.js with Express
+- TypeScript
+- MongoDB for database
+- JWT for authentication
+- Nodemailer for sending OTP emails
 
-### `npm test`
+## 📦 Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or pnpm
+- Git
 
-### `npm run build`
+### Frontend Setup
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+# Clone the repository
+git clone <your-repo-url>
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Navigate to frontend directory
+cd frontend
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Install dependencies using npm
+npm install
+# Or using pnpm
+pnpm install
 
-### `npm run eject`
+# Create .env file
+cp .env.example .env
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+# Start development server
+npm run dev
+# Or using pnpm
+pnpm dev
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Environment Variables
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Create a `.env` file in the frontend directory:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```env
+REACT_APP_API_URL=http://localhost:3000
+```
 
-## Learn More
+## 🔑 Key Features Implementation
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Auth Flow
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. **Signup**
+   - User enters email and password
+   - Backend generates OTP and sends via email
+   - User verifies OTP
+   - Account creation complete
+
+2. **Login**
+   - User enters credentials
+   - Backend validates and returns JWT
+   - Frontend stores token in secure storage
+   - User redirected to welcome page
+
+3. **Protected Routes**
+   - JWT verification on each request
+   - Automatic redirect for unauthenticated users
+   - Token refresh mechanism
+
+## 🔒 Security Features
+
+- Password hashing using bcrypt
+- JWT-based authentication
+- HTTP-only cookies
+- CORS protection
+- OTP authentication
+
+## 📱 Responsive Design
+
+The application is fully responsive and works seamlessly on:
+- Desktop (1024px and above)
+- Tablet (768px to 1023px)
+- Mobile (320px to 767px)
+
+
+## 📚 API Documentation
+
+### Authentication Endpoints
+
+```typescript
+POST /signup
+POST /verify-otp
+POST /login
+```
+
+## 🚀 Deployment
+
+- MongoDB Atlas: Database
+- Vercel: Backend API's
+- GitHub Pages: Frontend of the applicatioin
