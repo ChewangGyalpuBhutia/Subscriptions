@@ -32,8 +32,8 @@ const Login: React.FC = () => {
       try {
         const response = await axios.post(`${apiUrl}/login`, values);
         // Handle successful login, e.g., store token, redirect to dashboard
-        navigate('/welcome'); // Example redirect after successful login
-      } catch (error:any) {
+        navigate('/welcome', { state: { email: values.email, password: values.password } }); // Pass credentials to Welcome component
+      } catch (error: any) {
         setModalMessage(error.response?.data?.error || 'Error logging in');
         setModalOpen(true);
       } finally {

@@ -1,18 +1,16 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Welcome: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { email, password } = location.state || { email: '', password: '' };
 
   const handleSignOut = () => {
     // Handle sign out logic, e.g., clear tokens, redirect to login
     navigate('/login');
   };
-
-  // Replace these with actual user data
-  const username = "John Doe";
-  const email = "john.doe@example.com";
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -35,10 +33,9 @@ const Welcome: React.FC = () => {
         </Toolbar>
       </AppBar>
       <Box className="container mx-auto flex flex-col flex-1" sx={{ mt: 4, textAlign: 'center' }}>
-        <Typography variant="h4">Welcome, {username}!</Typography>
-        <Typography variant="h6">Email: {email}</Typography>
+        <Typography variant="h4">Welcome, {email}!</Typography>
       </Box>
-      <Box sx={{ height: '40px', backgroundColor: '#3a2449', mt: 'auto' }} />
+      <Box sx={{ height: '80px', backgroundColor: '#3a2449', mt: 'auto' }} />
     </div>
   );
 };

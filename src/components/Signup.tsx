@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import SignUpPicture from '../assets/SignUp.png';
-import { TextField, Button, Typography, Box, IconButton, InputAdornment, CircularProgress } from '@mui/material';
+import { TextField, Button, Typography, Box, IconButton, InputAdornment, CircularProgress, Modal } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -12,6 +12,8 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -40,8 +42,9 @@ const Signup: React.FC = () => {
       try {
         const response = await axios.post(`${apiUrl}/signup`, values);
         navigate('/verify-otp', { state: { email: values.email } });
-      } catch (error) {
-        formik.setFieldError('general', 'Error signing up');
+      } catch (error: any) {
+        setModalMessage(error.response?.data?.error || 'Error signing up');
+        setModalOpen(true);
       } finally {
         setLoading(false);
       }
@@ -58,6 +61,10 @@ const Signup: React.FC = () => {
 
   const handleSignIn = () => {
     navigate('/login');
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
   };
 
   return (
@@ -207,6 +214,33 @@ const Signup: React.FC = () => {
           </Box>
         </div>
       </div>
+      <Modal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            borderRadius: 4,
+            p: 4,
+          }}
+        >
+          <Typography id="modal-description" sx={{ mt: 2 }}>
+            {modalMessage}
+          </Typography>
+          <Button onClick={handleCloseModal} sx={{ mt: 2, color:'#3a2449' }}>
+            Close
+          </Button>
+        </Box>
+      </Modal>
     </div>
   );
 };
