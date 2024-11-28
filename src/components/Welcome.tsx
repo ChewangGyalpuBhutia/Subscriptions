@@ -168,7 +168,7 @@ const Welcome: React.FC = () => {
                   <Card>
                     <CardContent>
                       <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Total Time Lapsed</Typography>
-                      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#6458f7', }}>{(totalTimeLapsed ?? 0).toFixed(2)} hrs</Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#6458f7', }}>{Math.abs(totalTimeLapsed ?? 0).toFixed(2)} hrs</Typography>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -190,7 +190,7 @@ const Welcome: React.FC = () => {
                     <TableRow>
                       <TableCell sx={{ fontWeight: 'bold', color: '#6458f7', }}>Task Priority</TableCell>
                       <TableCell sx={{ fontWeight: 'bold', color: '#6458f7', }}>Pending Task</TableCell>
-                      <TableCell sx={{ fontWeight: 'bold', color: '#6458f7', }}>Time Lapsed (hours)</TableCell>
+                      {/* <TableCell sx={{ fontWeight: 'bold', color: '#6458f7', }}>Time Lapsed (hours)</TableCell> */}
                       <TableCell sx={{ fontWeight: 'bold', color: '#6458f7', }}>Time to Finish (hours)</TableCell>
                     </TableRow>
                   </TableHead>
@@ -205,9 +205,9 @@ const Welcome: React.FC = () => {
                         <TableRow key={priority}>
                           <TableCell>{priority}</TableCell>
                           <TableCell>{pendingTaskCount}</TableCell>
-                          <TableCell>
+                          {/* <TableCell>
                             {timeLapsed ? timeLapsed.toFixed(2) : '0.00'}
-                          </TableCell>
+                          </TableCell> */}
                           <TableCell>
                             {timeToFinish ? timeToFinish.toFixed(2) : '0.00'}
                           </TableCell>

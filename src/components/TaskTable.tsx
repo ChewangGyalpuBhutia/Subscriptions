@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Table, TableBody, TableCell, TableHead, TableRow, Paper, Checkbox, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Table, TableBody, TableCell, TableHead, TableRow, Paper, Checkbox, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, TextField, MenuItem, Select, FormControl, InputLabel, SelectChangeEvent, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,6 +18,7 @@ const TaskTable: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [newTask, setNewTask] = useState<Task>({
     _id: '',
     title: '',
@@ -35,11 +36,14 @@ const TaskTable: React.FC = () => {
   }, []);
 
   const fetchTasks = async () => {
+    setLoading(true);
     try {
       const response = await axios.get('https://hd-phi.vercel.app/tasks');
       setTasks(response.data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,6 +77,7 @@ const TaskTable: React.FC = () => {
   };
 
   const handleAddTask = () => {
+    
     setNewTask({
       _id: '',
       title: '',
@@ -90,16 +95,25 @@ const TaskTable: React.FC = () => {
   };
 
   const handleDeleteTasks = async () => {
+    setLoading(true);
     try {
       await Promise.all(selectedTasks.map(id => axios.delete(`https://hd-phi.vercel.app/tasks/${id}`)));
       fetchTasks();
       setSelectedTasks([]);
     } catch (error) {
       console.error('Error deleting tasks:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSaveTask = async () => {
+    if(!newTask.title || !newTask.startTime || !newTask.endTime) {
+      alert('Please fill all the fields');
+      return;
+    }
+
+    setLoading(true);
     try {
       if (newTask._id) {
         await axios.put(`https://hd-phi.vercel.app/tasks/${newTask._id}`, newTask);
@@ -110,6 +124,8 @@ const TaskTable: React.FC = () => {
       setOpen(false);
     } catch (error) {
       console.error('Error saving task:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -147,7 +163,20 @@ const TaskTable: React.FC = () => {
     return 0;
   });
 
-  const currentDateTime = new Date().toISOString().slice(0, 16); 
+
+  const formatDateTime = (dateTime: string) => {
+    const date = new Date(dateTime);
+    date.setHours(date.getHours() - 5);
+    date.setMinutes(date.getMinutes() - 30);
+    return date.toLocaleString('en-IN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true // Set hour12 to true to show AM/PM
+    });
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -199,135 +228,145 @@ const TaskTable: React.FC = () => {
             </FormControl>
           </Box>
         </Box>
-        <Paper sx={{ width: '100%', overflowX: 'auto' }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    indeterminate={selectedTasks.length > 0 && selectedTasks.length < tasks.length}
-                    checked={tasks.length > 0 && selectedTasks.length === tasks.length}
-                    onChange={handleSelectAllClick}
-                  />
-                </TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Task ID</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Title</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Priority</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Start Time</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>End Time</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Total Time to Finish (hrs)</TableCell>
-                <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Edit</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedTasks.map((task, index) => {
-                const isItemSelected = isSelected(task._id);
-                const labelId = `enhanced-table-checkbox-${task._id}`;
-                const totalTimeToFinish = (new Date(task.endTime).getTime() - new Date(task.startTime).getTime()) / (1000 * 60 * 60);
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Paper sx={{ width: '100%', overflowX: 'auto' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      indeterminate={selectedTasks.length > 0 && selectedTasks.length < tasks.length}
+                      checked={tasks.length > 0 && selectedTasks.length === tasks.length}
+                      onChange={handleSelectAllClick}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Task ID</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Title</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Priority</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Start Time</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>End Time</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Total Time to Finish (hrs)</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: '#6458f7' }}>Edit</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sortedTasks.map((task, index) => {
+                  const isItemSelected = isSelected(task._id);
+                  const labelId = `enhanced-table-checkbox-${task._id}`;
+                  const totalTimeToFinish = (new Date(task.endTime).getTime() - new Date(task.startTime).getTime()) / (1000 * 60 * 60);
 
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, task._id)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={task._id}
-                    selected={isItemSelected}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={isItemSelected}
-                        inputProps={{ 'aria-labelledby': labelId }}
-                      />
-                    </TableCell>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{task.title}</TableCell>
-                    <TableCell>{task.priority}</TableCell>
-                    <TableCell>{task.status}</TableCell>
-                    <TableCell>{new Date(task.startTime).toLocaleString()}</TableCell>
-                    <TableCell>{new Date(task.endTime).toLocaleString()}</TableCell>
-                    <TableCell>{totalTimeToFinish.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <IconButton onClick={() => handleEditTask(task)}>
-                        <EditIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </Paper>
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, task._id)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={task._id}
+                      selected={isItemSelected}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={isItemSelected}
+                          inputProps={{ 'aria-labelledby': labelId }}
+                        />
+                      </TableCell>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{task.title}</TableCell>
+                      <TableCell>{task.priority}</TableCell>
+                      <TableCell>{task.status}</TableCell>
+                      <TableCell>{formatDateTime(task.startTime)}</TableCell>
+                      <TableCell>{formatDateTime(task.endTime)}</TableCell>
+                      <TableCell>{totalTimeToFinish.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={() => handleEditTask(task)}>
+                          <EditIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Paper>
+        )}
       </Box>
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>{newTask._id ? 'Edit Task' : 'Add Task'}</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Title"
-            name="title"
-            value={newTask.title}
-            onChange={handleInputChange}
-            fullWidth
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            label="Start Time"
-            name="startTime"
-            type="datetime-local"
-            value={newTask.startTime}
-            onChange={handleInputChange}
-            fullWidth
-            sx={{ mb: 2 }}
-            InputLabelProps={{ shrink: true }}
-            inputProps={{ min: currentDateTime }} 
-          />
-          <TextField
-            label="End Time"
-            name="endTime"
-            type="datetime-local"
-            value={newTask.endTime}
-            onChange={handleInputChange}
-            fullWidth
-            sx={{ mb: 2 }}
-            InputLabelProps={{ shrink: true }}
-          />
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Priority</InputLabel>
-            <Select
-              name="priority"
-              value={newTask.priority}
-              onChange={handleSelectChange}
-            >
-              {[1, 2, 3, 4, 5].map((priority) => (
-                <MenuItem key={priority} value={priority}>
-                  {priority}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Status</InputLabel>
-            <Select
-              name="status"
-              value={newTask.status}
-              onChange={handleSelectChange}
-            >
-              <MenuItem value="pending">Pending</MenuItem>
-              <MenuItem value="finished">Finished</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSaveTask} color="primary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {loading == false && ( 
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <DialogTitle>{newTask._id ? 'Edit Task' : 'Add Task'}</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Title"
+              name="title"
+              value={newTask.title}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Start Time"
+              name="startTime"
+              type="datetime-local"
+              value={newTask.startTime}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ mb: 2 }}
+              InputLabelProps={{ shrink: true }}
+              inputProps={{ 
+                min: new Date().toISOString().slice(0, 16)
+               }}
+            />
+            <TextField
+              label="End Time"
+              name="endTime"
+              type="datetime-local"
+              value={newTask.endTime}
+              onChange={handleInputChange}
+              fullWidth
+              sx={{ mb: 2 }}
+              InputLabelProps={{ shrink: true }}
+            />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Priority</InputLabel>
+              <Select
+                name="priority"
+                value={newTask.priority}
+                onChange={handleSelectChange}
+              >
+                {[1, 2, 3, 4, 5].map((priority) => (
+                  <MenuItem key={priority} value={priority}>
+                    {priority}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Status</InputLabel>
+              <Select
+                name="status"
+                value={newTask.status}
+                onChange={handleSelectChange}
+              >
+                <MenuItem value="pending">Pending</MenuItem>
+                <MenuItem value="finished">Finished</MenuItem>
+              </Select>
+            </FormControl>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpen(false)} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleSaveTask} color="primary">
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </div>
   );
 };

@@ -10,7 +10,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/Reunion" element={<Navigate to="/welcome" />} />
+        <Route path="/ReunionFrontend" element={<Navigate to="/welcome" />} />
         {/* <Route path="/signup" element={<Signup />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/login" element={<Login />} /> */}
