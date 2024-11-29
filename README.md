@@ -1,39 +1,25 @@
-# Full-Stack Authentication System
+# Task Management Frontend
 
-A modern authentication system built with React, featuring email OTP verification, secure login, and JWT authentication.
+This is the frontend for the Task Management application built using ReactJS and Material-UI. The application provides a dashboard to view task statistics and a task list to perform CRUD operations on tasks. It includes features like sorting, filtering, and is designed to be responsive and visually appealing.
 
-## 🚀 Features
+## Technologies Used
 
-- Email-based signup with OTP verification
-- Secure login with JWT authentication
-- Password hashing using bcrypt
-- Responsive design using Tailwind CSS
-- Protected routes for authenticated users
-- Mobile-friendly interface
+- **ReactJS**: A JavaScript library for building user interfaces.
+- **Material-UI**: A popular React UI framework for building responsive and visually appealing user interfaces.
 
-## 🛠️ Tech Stack
+## Features
 
-### Frontend
-- React.js with TypeScript
-- Tailwind CSS for styling
-- Axios for API requests
-- React Router for navigation
-- Formik and yup  for form validation
+- **Dashboard Task Stats**: View statistics about tasks, including total tasks, tasks completed, tasks pending, and average time to complete tasks.
+- **Task List**: Perform CRUD (Create, Read, Update, Delete) operations on tasks.
+- **Sorting and Filtering**: Sort tasks by priority, start time, and end time. Filter tasks by status (all, pending, finished).
+- **Responsive Design**: The application is designed to be responsive and works well on different screen sizes.
+- **Visually Appealing**: The application uses Material-UI components to provide a modern and visually appealing user interface.
 
-### Backend
-- Node.js with Express
-- TypeScript
-- MongoDB for database
-- JWT for authentication
-- Nodemailer for sending OTP emails
-
-## 📦 Installation
+## Getting Started
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- npm or pnpm
-- Git
 
+- Node.js and npm installed on your machine.
 ### Frontend Setup
 
 ```bash
@@ -57,63 +43,3 @@ npm run dev
 pnpm dev
 ```
 
-### Environment Variables
-
-Create a `.env` file in the frontend directory:
-
-```env
-REACT_APP_API_URL=http://localhost:3000
-```
-
-## 🔑 Key Features Implementation
-
-### Auth Flow
-
-1. **Signup**
-   - User enters email and password
-   - Backend generates OTP and sends via email
-   - User verifies OTP
-   - Account creation complete
-
-2. **Login**
-   - User enters credentials
-   - Backend validates and returns JWT
-   - Frontend stores token in secure storage
-   - User redirected to welcome page
-
-3. **Protected Routes**
-   - JWT verification on each request
-   - Automatic redirect for unauthenticated users
-   - Token refresh mechanism
-
-## 🔒 Security Features
-
-- Password hashing using bcrypt
-- JWT-based authentication
-- HTTP-only cookies
-- CORS protection
-- OTP authentication
-
-## 📱 Responsive Design
-
-The application is fully responsive and works seamlessly on:
-- Desktop (1024px and above)
-- Tablet (768px to 1023px)
-- Mobile (320px to 767px)
-
-
-## 📚 API Documentation
-
-### Authentication Endpoints
-
-```typescript
-POST /signup
-POST /verify-otp
-POST /login
-```
-
-## 🚀 Deployment
-
-- MongoDB Atlas: Database
-- Vercel: Backend API's
-- GitHub Pages: Frontend of the applicatioin
