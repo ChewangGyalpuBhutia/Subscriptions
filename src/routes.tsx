@@ -5,6 +5,7 @@ import VerifyOTP from './components/VerifyOTP';
 import Login from './components/Login';
 import Welcome from './components/Welcome';
 import TaskTable from './components/TaskTable';
+import Canvas from './components/Canvas';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/login" element={<Login />} /> */}
         <Route path="/welcome" element={<Welcome />} />
         <Route path="/task-table" element={<TaskTable />} />
+        <Route path="/canvas" element={<Canvas />} />
       </Routes>
     </Router>
   );
